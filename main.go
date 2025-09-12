@@ -1,55 +1,66 @@
 package main
 
 import (
-	"context"
-	"fmt"
-	"log"
-	"net/http"
-	// "os"
+    "context"
+    "fmt"
+    "log"
+	"strconv"
 
-	"github.com/jackc/pgx/v5"
+    "github.com/gofiber/fiber/v2"
+    db "gamecraft-backend/prisma/generated/prisma-client" // alias db
 )
 
-var conn *pgx.Conn
-
 func main() {
-	// PostgreSQL connection string
-	dsn := "postgres://gagan:gagan@localhost:5432/mydb"
+    client := db.NewClient()
+    if err := client.Prisma.Connect(); err != nil {
+        log.Fatal(err)
+    }
+    defer client.Prisma.Disconnect()
 
-	var err error
-	conn, err = pgx.Connect(context.Background(), dsn)
-	if err != nil {
-		log.Fatalf("Unable to connect to database: %v\n", err)
-	}
-	defer conn.Close(context.Background())
+    app := fiber.New()
 
-	// Simple test route
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Go backend is running 🚀"))
+    app.Get("/ping", func(c *fiber.Ctx) error {
+        return c.SendString("pong")
+    })
+
+    // Create user
+    app.Post("/user", func(c *fiber.Ctx) error {
+        type Request struct {
+            Name string `json:"name"`
+        }
+        req := new(Request)
+        if err := c.BodyParser(req); err != nil {
+            return c.Status(400).JSON(fiber.Map{"error": "invalid request"})
+        }
+
+        user, err := client.User.CreateOne(
+            db.User.Name.Set(req.Name),
+        ).Exec(context.Background())
+        if err != nil {
+            return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+        }
+
+        return c.JSON(user)
+    })
+
+    // Get user by ID
+    app.Get("/user/:id", func(c *fiber.Ctx) error {
+		idStr := c.Params("id")
+		id, err := strconv.Atoi(idStr)
+		if err != nil {
+			return c.Status(400).JSON(fiber.Map{"error": "invalid id"})
+		}
+
+		user, err := client.User.FindUnique(
+			db.User.ID.Equals(id),
+		).Exec(context.Background())
+		if err != nil {
+			return c.Status(404).JSON(fiber.Map{"error": "user not found"})
+		}
+		return c.JSON(user)
 	})
 
-	// Example: fetch users
-	http.HandleFunc("/users", getUsers)
 
-	fmt.Println("Server started at :8080")
-	http.ListenAndServe(":8080", nil)
-}
-
-func getUsers(w http.ResponseWriter, r *http.Request) {
-	rows, err := conn.Query(context.Background(), "SELECT id, name FROM users")
-	if err != nil {
-		http.Error(w, "DB query failed", http.StatusInternalServerError)
-		return
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var id int
-		var name string
-		if err := rows.Scan(&id, &name); err != nil {
-			http.Error(w, "Scan error", http.StatusInternalServerError)
-			return
-		}
-		fmt.Fprintf(w, "ID: %d, Name: %s\n", id, name)
-	}
+    fmt.Println("Server running on http://localhost:3000")
+    log.Fatal(app.Listen(":3000"))
 }
