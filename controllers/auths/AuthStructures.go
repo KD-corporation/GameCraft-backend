@@ -14,6 +14,12 @@ type Response struct {
 	Data     interface{} `json:"data,omitempty"`
 }
 
+type ResponseUserData struct {
+	FirstName	string	`json:"first-name"`
+	LastName  string `json:"last-name"`
+	Email     string `json:"email"`
+}
+
 type LoginController struct {
 	Email     string `json:"email"`
 	Password  string `json:"password"`

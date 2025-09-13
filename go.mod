@@ -11,4 +11,5 @@ require (
 require (
 	github.com/golang-jwt/jwt/v5 v5.3.0 // indirect
 	go.mongodb.org/mongo-driver/v2 v2.0.1 // indirect
+	golang.org/x/crypto v0.42.0 // indirect
 )

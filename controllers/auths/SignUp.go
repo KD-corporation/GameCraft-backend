@@ -49,7 +49,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 		db.User.FirstName.Set(user.FirstName),
 		db.User.LastName.Set(user.LastName),
 		db.User.Email.Set(user.Email),
-		db.User.Password.Set(user.Password),
+		db.User.Password.Set(HashPassword(user.Password)),
 	).Exec(context.Background())
 
 
@@ -65,6 +65,12 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	responseUserData := ResponseUserData{
+		FirstName: newUser.FirstName,
+		LastName: newUser.LastName,
+		Email: newUser.Email,
+	}
+
 	fmt.Println("new user response:", newUser)
 
 	w.Header().Set("Content-Type", "application/json")
@@ -72,6 +78,6 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(Response{
 		Message: "user created successfully",
 		Status:  true,
-		Data:    newUser,
+		Data:    responseUserData,
 	})
 }
