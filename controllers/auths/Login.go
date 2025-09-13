@@ -3,6 +3,7 @@ package auths
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
 	"time"
@@ -16,6 +17,7 @@ import (
 
 
 func Login(w http.ResponseWriter, r *http.Request) {
+	
 	if r.Method != http.MethodPost {
 		w.Header().Set("Context-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
@@ -66,7 +68,9 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if existing.Password != user.Password {
+
+
+	if !CheckPassword(user.Password, existing.Password) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
 		json.NewEncoder(w).Encode(Response{
@@ -75,6 +79,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+
 
 
 	secret := []byte(os.Getenv("JWT_SECRET")) // set in .env
@@ -89,6 +94,9 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+
+
+
 	http.SetCookie(w, &http.Cookie{
 		Name:     "auth_token",
 		Value:    tokenString,
@@ -98,6 +106,14 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		Expires:  time.Now().Add(24 * time.Hour),
 	})
 
+	responseUserData := ResponseUserData{
+		FirstName: existing.FirstName,
+		LastName: existing.LastName,
+		Email: existing.Email,
+	}
+
+	fmt.Println(responseUserData)
+
 	// Success response
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
@@ -106,7 +122,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		Status:  true,
 		Data: map[string]interface{}{
 			"token": tokenString,
-			"user":  existing,
+			"user":  responseUserData,
 		},
 	})
 }
