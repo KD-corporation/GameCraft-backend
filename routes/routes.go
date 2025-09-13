@@ -7,4 +7,5 @@ import (
 
 func RegisterRouter(mux *http.ServeMux) {
 	mux.HandleFunc("/signup", auths.SignUp)
+	mux.HandleFunc("/login", auths.Login)
 }
