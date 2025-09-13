@@ -1,66 +1,38 @@
 package main
 
 import (
-    "context"
-    "fmt"
-    "log"
-	"strconv"
+	"fmt"
+	"gamecraft-backend/routes"
+	"log"
+	"net/http"
+	"os"
 
-    "github.com/gofiber/fiber/v2"
-    db "gamecraft-backend/prisma/generated/prisma-client" // alias db
+	"github.com/joho/godotenv"
 )
 
 func main() {
-    client := db.NewClient()
-    if err := client.Prisma.Connect(); err != nil {
-        log.Fatal(err)
-    }
-    defer client.Prisma.Disconnect()
+    mux := http.NewServeMux()
 
-    app := fiber.New()
+    routes.RegisterRouter(mux)
 
-    app.Get("/ping", func(c *fiber.Ctx) error {
-        return c.SendString("pong")
-    })
+    http.Handle("/api/", http.StripPrefix("/api", mux))
 
-    // Create user
-    app.Post("/user", func(c *fiber.Ctx) error {
-        type Request struct {
-            Name string `json:"name"`
-        }
-        req := new(Request)
-        if err := c.BodyParser(req); err != nil {
-            return c.Status(400).JSON(fiber.Map{"error": "invalid request"})
-        }
+    if err := godotenv.Load(); err != nil {
+		log.Println(" No .env file found, using system environment variables")
+	}
+	// Ensure DATABASE_URL is set
+	if os.Getenv("DATABASE_URL") == "" {
+		log.Fatal(" DATABASE_URL environment variable is not set")
+	}
 
-        user, err := client.User.CreateOne(
-            db.User.Name.Set(req.Name),
-        ).Exec(context.Background())
-        if err != nil {
-            return c.Status(500).JSON(fiber.Map{"error": err.Error()})
-        }
 
-        return c.JSON(user)
-    })
-
-    // Get user by ID
-    app.Get("/user/:id", func(c *fiber.Ctx) error {
-		idStr := c.Params("id")
-		id, err := strconv.Atoi(idStr)
-		if err != nil {
-			return c.Status(400).JSON(fiber.Map{"error": "invalid id"})
-		}
-
-		user, err := client.User.FindUnique(
-			db.User.ID.Equals(id),
-		).Exec(context.Background())
-		if err != nil {
-			return c.Status(404).JSON(fiber.Map{"error": "user not found"})
-		}
-		return c.JSON(user)
+    http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("❓ Unhandled request: %s %s", r.Method, r.URL.Path)
+		http.NotFound(w, r)
 	})
 
 
-    fmt.Println("Server running on http://localhost:3000")
-    log.Fatal(app.Listen(":3000"))
+    fmt.Println("🚀 Server running at http://localhost:3001")
+	log.Fatal(http.ListenAndServe(":3001", nil))
+
 }
