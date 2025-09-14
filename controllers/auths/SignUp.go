@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"gamecraft-backend/controllers/helpers"
 	db "gamecraft-backend/prisma/db"
 )
 
@@ -81,4 +82,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 		Status:  true,
 		Data:    responseUserData,
 	})
+
+	// go helpers.SendEmail() // Send email in a separate goroutine
+	helpers.SendEmail();
 }
