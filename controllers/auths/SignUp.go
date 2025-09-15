@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"gamecraft-backend/controllers/helpers"
 	db "gamecraft-backend/prisma/db"
@@ -12,7 +13,7 @@ import (
 
 func SignUp(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		w.Header().Set("Context-Type", "application/json")
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(Response{
 			Message: "Method not allowed",
@@ -47,42 +48,58 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("user data:", user)
 
 
-	newUser, err := client.User.CreateOne(
-		db.User.FirstName.Set(user.FirstName),
-		db.User.LastName.Set(user.LastName),
-		db.User.Email.Set(user.Email),
-		db.User.Password.Set(HashPassword(user.Password)),
-	).Exec(context.Background())
+	// go helpers.SendEmail() // Send email in a separate goroutine
+	to := []string{user.Email}
+	otp := helpers.OptGenerate()
+	expiresAt := time.Now().Add(5 * time.Minute)
 
+	if helpers.SendEmail(to, otp) {
+		newUser, err := client.Otp.CreateOne(
+			db.Otp.FirstName.Set(user.FirstName),
+			db.Otp.LastName.Set(user.LastName),
+			db.Otp.Email.Set(user.Email),
+			db.Otp.Otp.Set(otp),
+			db.Otp.ExpiresAt.Set(expiresAt),
+			db.Otp.Password.Set(HashPassword(user.Password)),
+		).Exec(context.Background())
 
-	if err != nil {
-		fmt.Println("Error creating user:", err)
+		if err != nil {
+			fmt.Println("Error creating user:", err)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(w).Encode(Response{
+				Message:  "failed to create user and send otp",
+				Status:   false,
+				TryLater: "please try again later",
+			})
+			return
+		}
+
+		responseUserData := ResponseUserData{
+			FirstName: newUser.FirstName,
+			LastName: newUser.LastName,
+			Email: newUser.Email,
+		}
+
 		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(Response{
-			Message:  "failed to create user",
-			Status:   false,
-			TryLater: "please try again later",
+			Message: "user created successfully",
+			Status:  true,
+			Data:    responseUserData,
 		})
-		return
+
+		return;
+
 	}
 
-	responseUserData := ResponseUserData{
-		FirstName: newUser.FirstName,
-		LastName: newUser.LastName,
-		Email: newUser.Email,
-	}
-
-	fmt.Println("new user response:", newUser)
 
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusInternalServerError)
 	json.NewEncoder(w).Encode(Response{
-		Message: "user created successfully",
-		Status:  true,
-		Data:    responseUserData,
+		Message:  "failed to create user and send otp",
+		Status:   false,
+		TryLater: "please try again later",
 	})
-
-	// go helpers.SendEmail() // Send email in a separate goroutine
-	helpers.SendEmail();
 }
+
