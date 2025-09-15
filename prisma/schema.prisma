@@ -14,3 +14,13 @@ model User {
   Email String @unique
   Password String
 }
+
+model OTP {
+  id  Int @id @default(autoincrement())
+  FirstName  String
+  LastName   String
+  Email String
+  Otp String
+  ExpiresAt DateTime
+  Password String
+}

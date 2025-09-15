@@ -1,5 +1,6 @@
 package auths
 
+
 type SignUpController struct {
 	FirstName string `json:"FirstName"`
 	LastName  string `json:"LastName"`
@@ -15,12 +16,17 @@ type Response struct {
 }
 
 type ResponseUserData struct {
-	FirstName string `json:"first-name"`
-	LastName  string `json:"last-name"`
+	FirstName string `json:"FirstName"`
+	LastName  string `json:"LastName"`
 	Email     string `json:"email"`
 }
 
 type LoginController struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
+}
+
+type OtpController struct {
+	Email    		string 		`json:"email"`
+	Otp    			string 		`json:"otp"`
 }
