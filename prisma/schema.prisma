@@ -9,18 +9,32 @@ datasource db {
 
 model User {
   id    Int    @id @default(autoincrement())
+  Username  String @unique
   FirstName  String
   LastName   String
   Email String @unique
   Password String
 }
 
-model OTP {
+model Otp {
   id  Int @id @default(autoincrement())
+  Username String @unique
   FirstName  String
   LastName   String
-  Email String
+  Email String  @unique
   Otp String
   ExpiresAt DateTime
   Password String
 }
+
+
+model Question {
+  id  Int @id @default(autoincrement())
+  Title String
+  Description String
+  StarterSchema String
+  StarterData String
+  CorrectQuery  String
+}
+
+

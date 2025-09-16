@@ -48,6 +48,36 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("user data:", user)
 
 
+	existing, _ := client.User.FindUnique(
+			db.User.Email.Equals(user.Email),
+	).Exec(context.Background())
+
+	if existing != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusConflict)
+		json.NewEncoder(w).Encode(Response{
+			Message:  "user with email already exist",
+			Status:   false,
+		})
+		return
+	}
+
+	existing, _ = client.User.FindUnique(
+			db.User.Username.Equals(user.Username),
+	).Exec(context.Background())
+
+	if existing != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusConflict)
+		json.NewEncoder(w).Encode(Response{
+			Message:  "user with username already exist",
+			Status:   false,
+		})
+		return
+	}
+
+
+
 	// go helpers.SendEmail() // Send email in a separate goroutine
 	to := []string{user.Email}
 	otp := helpers.OptGenerate()
@@ -55,6 +85,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 
 	if helpers.SendEmail(to, otp) {
 		newUser, err := client.Otp.CreateOne(
+			db.Otp.Username.Set(user.Username),
 			db.Otp.FirstName.Set(user.FirstName),
 			db.Otp.LastName.Set(user.LastName),
 			db.Otp.Email.Set(user.Email),
@@ -76,6 +107,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 		}
 
 		responseUserData := ResponseUserData{
+			Username: newUser.Username,
 			FirstName: newUser.FirstName,
 			LastName: newUser.LastName,
 			Email: newUser.Email,
