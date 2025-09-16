@@ -53,8 +53,11 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 
-	existing, err := client.User.FindUnique(
-		db.User.Email.Equals(user.Email),
+	existing, err := client.User.FindFirst(
+		db.User.Or(
+			db.User.Email.Equals(user.Id),
+			db.User.Username.Equals(user.Id),
+		),
 	).Exec(context.Background())
 
 

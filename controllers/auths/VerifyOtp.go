@@ -73,6 +73,7 @@ func VerifyOtp(w http.ResponseWriter, r *http.Request) {
 
 
 	newUser, err := client.User.CreateOne(
+		db.User.Username.Set(otpRecord.Username),
 		db.User.FirstName.Set(otpRecord.FirstName),
 		db.User.LastName.Set(otpRecord.LastName),
 		db.User.Email.Set(otpRecord.Email),
@@ -93,6 +94,7 @@ func VerifyOtp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	responseUserData := ResponseUserData{
+		Username: newUser.Username,
 		FirstName: newUser.FirstName,
 		LastName: newUser.LastName,
 		Email: newUser.Email,
