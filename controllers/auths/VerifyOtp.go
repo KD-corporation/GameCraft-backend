@@ -77,7 +77,7 @@ func VerifyOtp(w http.ResponseWriter, r *http.Request) {
 		db.User.FirstName.Set(otpRecord.FirstName),
 		db.User.LastName.Set(otpRecord.LastName),
 		db.User.Email.Set(otpRecord.Email),
-		db.User.Password.Set(HashPassword(otpRecord.Password)),
+		db.User.Password.Set(otpRecord.Password),
 	).Exec(context.Background())
 
 
