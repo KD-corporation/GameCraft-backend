@@ -52,6 +52,8 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	fmt.Println(user.Id)
+
 
 	existing, err := client.User.FindFirst(
 		db.User.Or(
@@ -59,6 +61,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			db.User.Username.Equals(user.Id),
 		),
 	).Exec(context.Background())
+
 
 
 	if err != nil || existing == nil {
@@ -74,6 +77,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 
 	if !CheckPassword(user.Password, existing.Password) {
+		fmt.Println("hii")
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
 		json.NewEncoder(w).Encode(Response{

@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"time"
 
-	db "gamecraft-backend/prisma/db"
 
 )
 
@@ -23,18 +22,6 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-
-
-
-
-	client := db.NewClient()
-	if err := client.Prisma.Connect(); err != nil {
-		http.Error(w, "failed to connect to server", http.StatusInternalServerError)
-		return
-	}
-	defer client.Prisma.Disconnect()
-
-
 
 
 

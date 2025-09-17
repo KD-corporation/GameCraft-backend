@@ -46,7 +46,7 @@ func GetAllQustion(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(Response{
-			Message:  "failed to failed to fetch questions",
+			Message:  "failed to fetch questions",
 			Status:   false,
 			TryLater: "please try again later",
 		})
