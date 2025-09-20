@@ -84,5 +84,6 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 	})
 
 	// go helpers.SendEmail() // Send email in a separate goroutine
-	helpers.SendEmail();
+	// helpers.SendEmail();
+	println("OTP for verification:", helpers.GenerateOTP())
 }
