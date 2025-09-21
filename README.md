@@ -320,3 +320,14 @@ docker stop 58d592fd188f
 ---
 
 Would you like me to also extend this README to include **how to hook this `games_db` into Prisma (Go client)**, so it’s all in one place for your team?
+
+
+
+
+### run this command in root directory
+---
+``` bash
+ npx prisma migrate dev --schema=prisma_games/schema.prisma --name init
+
+ ```bash
+ npx prisma generate --schema=prisma_games/schema.prisma
