@@ -1,0 +1,18 @@
+version: '3.9'
+
+services:
+  games-db:
+    image: postgres:15
+    container_name: games_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: games_user
+      POSTGRES_PASSWORD: games_pass
+      POSTGRES_DB: games_db
+    ports:
+      - "5434:5432"  # Host port 5434 maps to container 5432
+    volumes:
+      - games_pg_data:/var/lib/postgresql/data
+
+volumes:
+  games_pg_data:
