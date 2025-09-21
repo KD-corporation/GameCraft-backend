@@ -6,6 +6,7 @@ import (
 	"gamecraft-backend/controllers/question"
 	"gamecraft-backend/middlewares"
 	"net/http"
+	"gamecraft-backend/controllers/sql"
 )
 
 func RegisterRouter(mux *http.ServeMux) {
@@ -13,6 +14,7 @@ func RegisterRouter(mux *http.ServeMux) {
 	mux.HandleFunc("/verify-otp", auths.VerifyOtp)
 	mux.HandleFunc("/login", auths.Login)
 	mux.HandleFunc("/save-question", question.SaveQuestion)
+	mux.HandleFunc("/add-game", sql.AddGame)
 }
 
 // only get request are Alloweed to this Function

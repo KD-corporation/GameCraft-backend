@@ -1,0 +1,22 @@
+// prisma_games/schema.prisma
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://games_user:games_pass@localhost:5434/games?schema=public"
+}
+
+generator client {
+  provider = "prisma-client-go"
+  output   = "./prisma_games_client" // separate client folder
+}
+
+
+model Game {
+  id          Int      @id @default(autoincrement())
+  title       String
+  genre       String
+  releaseDate DateTime
+  developer   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
