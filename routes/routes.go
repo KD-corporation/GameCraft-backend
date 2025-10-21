@@ -10,9 +10,9 @@ import (
 )
 
 func RegisterRouter(mux *http.ServeMux) {
-	mux.HandleFunc("/signup", auths.SignUp)
-	mux.HandleFunc("/verify-otp", auths.VerifyOtp)
-	mux.HandleFunc("/login", auths.Login)
+	mux.HandleFunc("/auth/signup", auths.SignUp)
+	mux.HandleFunc("/auth/verify-otp", auths.VerifyOtp)
+	mux.HandleFunc("/auth/login", auths.Login)
 	mux.HandleFunc("/save-question", question.SaveQuestion)
 	mux.HandleFunc("/add-game", sql.AddGame)
 }
