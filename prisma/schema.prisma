@@ -8,33 +8,32 @@ datasource db {
 }
 
 model User {
-  id    Int    @id @default(autoincrement())
+  id        Int    @id @default(autoincrement())
+  FirstName String
+  LastName  String
+  Email     String @unique
+  Password  String
   Username  String @unique
-  FirstName  String
-  LastName   String
-  Email String @unique
-  Password String
 }
 
 model Otp {
-  id  Int @id @default(autoincrement())
-  Username String @unique
-  FirstName  String
-  LastName   String
-  Email String  @unique
-  Otp String
+  id        Int      @id @default(autoincrement())
+  Username  String   @unique
+  FirstName String
+  LastName  String
+  Email     String   @unique
+  Otp       String
   ExpiresAt DateTime
-  Password String
-}
+  Password  String
 
+  @@map("Otp")
+}
 
 model Question {
-  id  Int @id @default(autoincrement())
-  Title String
-  Description String
+  id            Int    @id @default(autoincrement())
+  Title         String
+  Description   String
   StarterSchema String
-  StarterData String
+  StarterData   String
   CorrectQuery  String
 }
-
-

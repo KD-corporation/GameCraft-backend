@@ -12,8 +12,8 @@ func SendEmail(to []string, otp string) bool {
 	fmt.Println("Preparing to send email...")
 
 	// Load from env (better for security)
-	from := os.Getenv("SENDER_EMAIL")
-	password := os.Getenv("SENDER_EMAIL_PASSWORD")
+	from := os.Getenv("EMAIL")
+	password := os.Getenv("EMAIL_PASSWORD")
 
 	smtpHost := "smtp.gmail.com"
 	smtpPort := "587"
@@ -82,7 +82,6 @@ func SendEmail(to []string, otp string) bool {
 		</html>
 		`
 
-
 	// Build message
 	message := []byte("From: " + from + "\r\n" +
 		"To: " + strings.Join(to, ",") + "\r\n" +
@@ -92,13 +91,8 @@ func SendEmail(to []string, otp string) bool {
 		"\r\n" +
 		body + "\r\n")
 
-
-
-
 	// Authentication
 	auth := smtp.PlainAuth("", from, password, smtpHost)
-
-
 
 	// Send email
 	err := smtp.SendMail(smtpHost+":"+smtpPort, auth, from, to, message)
@@ -107,12 +101,9 @@ func SendEmail(to []string, otp string) bool {
 		return false
 	}
 
-
-
 	fmt.Println("Email Sent Successfully!")
 	return true
 }
 
 //kill port 3001
 //fuser -k 3001/tcp
-
